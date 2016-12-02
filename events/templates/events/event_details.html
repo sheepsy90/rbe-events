@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {{ event }}
+
+
+    <script>
+        $(document).ready(function(){
+           $('.search-bar').removeClass('visible-xs').hide();
+        });
+    </script>
+{% endblock %}
