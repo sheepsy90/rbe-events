@@ -46,7 +46,7 @@
         }
 
         .event-box {
-            min-height: 110px;
+            min-height: 85px;
         }
     </style>
 
@@ -69,13 +69,16 @@
                                 <div class="row event-box">
                                     <div class="col-xs-12 col-sm-2 time align-left top-adjust">
                                         <div class="row">
-                                            <div class="col-xs-3 col-sm-12 align-center">{{ event.begin_time|date:"g:iA" }}</div>
+                                            <div class="col-xs-4 col-sm-12">
+                                                <span>{{ event.begin_time|date:"g:iA" }}</span>
+                                                <span class="visible-xs" style="font-size: 12px">{{ event.begin_time|date:"e" }}</span>
+                                            </div>
                                             <div class="col-sm-12 hidden-xs " style="height: 10px"></div>
-                                            <div class="col-xs-3 col-sm-12 align-center">
+                                            <div class="hidden-xs col-sm-12 align-center">
                                                 <span style="font-size: 12px">{{ event.begin_time|date:"e" }}</span>
                                             </div>
                                             <div class="col-sm-12 hidden-xs" style="margin-top: 10px"></div>
-                                            <div class="col-xs-3 col-sm-12 align-center">
+                                            <div class="col-xs-4 col-sm-12 align-center">
                                                 {% if event.medium == 'online' %}
                                                     <i class="fa fa-desktop" aria-hidden="true"></i>
                                                     <span style="font-size: 12px">{{ event.medium }}</span>
@@ -84,7 +87,7 @@
                                                     <span style="font-size: 12px">{{ event.medium }}</span>
                                                 {% endif %}
                                             </div>
-                                            <div class="visible-xs col-xs-3">
+                                            <div class="visible-xs col-xs-4">
                                                 <img class="pull-right" style="height: 24px; margin-top: -6px"
                                                      src="/static/img/language_flags/{{ event.language }}.png" alt=""/>
                                             </div>
@@ -97,7 +100,7 @@
                                             <a href="{% url 'event_details' event.id %}">{{ event.title }}</a>
                                         </div>
                                         <p class="description" style="font-size: 12px">
-                                            {{ event.description|slice:":350" }}{% if event.description > 350 %}
+                                            {{ event.description|slice:":210" }}{% if event.description > 210 %}
                                                 ...{% endif %}</p>
 
                                     </div>

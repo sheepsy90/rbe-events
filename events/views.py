@@ -6,8 +6,10 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils import timezone
 
+from events.forms import EventForm
 from events.models import Event
 
 
@@ -34,7 +36,33 @@ def meta(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 def create_event(request):
-    return render(request, 'events/index.html')
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = EventForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+
+            print request.user
+            title = form.cleaned_data['title']
+            description = form.cleaned_data['description']
+            language = form.cleaned_data['language']
+            medium = form.cleaned_data['medium']
+            begin_time = form.start_datetime
+            end_time = form.end_datetime
+
+            event = Event(creator=request.user, title=title, description=description, begin_time=begin_time,
+                          end_time=end_time, language=language, medium=medium)
+
+            event.save()
+
+            return HttpResponseRedirect(reverse('event_details', kwargs={'event_id': event.id}))
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = EventForm()
+
+    return render(request, 'events/create.html',  {'form': form})
 
 @login_required(login_url=settings.LOGIN_URL)
 def event_details(request, event_id):

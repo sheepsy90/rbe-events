@@ -20,11 +20,14 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.min.css">
+
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-    <link rel="stylesheet" href="{% static 'css/questions.css' %}">
+    <link rel="stylesheet" type="text/css" href='{% static "css/bootstrap-datepicker3.standalone.min.css"%}'>
+
 
     {% block header %}{% endblock %}
 </head>
@@ -62,6 +65,7 @@
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav navbar-right">
 
+                        <li id='create_event'><a href="{% url 'create_event' %}"><span class="fa fa-pencil"></span> Create</a></li>
                         <li id='logout'><a href="{% url 'logout' %}"><span class="fa fa-sign-out"></span> Logout</a></li>
                         <li class="separator"></li>
                         {% if user.is_superuser %}

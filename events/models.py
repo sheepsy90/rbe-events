@@ -22,6 +22,12 @@ class Event(models.Model):
 
     medium = models.CharField(default="online", max_length=8, choices=LOCATIONS, help_text="Whether the event will be held online or offline")
 
+    @property
+    def display_language(self):
+        return dict(LANGUAGES)[self.language]
+
+    def __str__(self):
+        return "{} // {} // {}".format(self.creator, self.title, self.begin_time.isoformat())
 
 class EventLocation(models.Model):
     latitude = models.CharField(max_length=32)
