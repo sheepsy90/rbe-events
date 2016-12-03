@@ -9,6 +9,11 @@ LOCATIONS = [
     ('online', 'Online')
 ]
 
+PARTICIPATION_STATES = [
+    ('interested', 'Interested'),
+    ('going', 'Going'),
+    ('not_going', 'Not going')
+]
 
 class Event(models.Model):
     creator = models.ForeignKey(User, help_text="The user creating the event and therefore able to edit it")
@@ -29,7 +34,11 @@ class Event(models.Model):
     def __str__(self):
         return "{} // {} // {}".format(self.creator, self.title, self.begin_time.isoformat())
 
-class EventLocation(models.Model):
-    latitude = models.CharField(max_length=32)
-    longitude = models.CharField(max_length=32)
-    description = models.CharField(max_length=256)
+class EventParticipant(models.Model):
+    event = models.ForeignKey(Event)
+    user = models.ForeignKey(User)
+    state = models.CharField(max_length=32, choices=PARTICIPATION_STATES)
+
+    @property
+    def display_state(self):
+        return dict(PARTICIPATION_STATES)[self.state]

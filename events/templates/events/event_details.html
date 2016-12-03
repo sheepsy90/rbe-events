@@ -1,15 +1,32 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block header %}
+    <script src="{% static 'js/events.js' %}"></script>
+{% endblock %}
+
 {% block content %}
     <style>
-        .event-box {
-
-        }
-
         .tile_override {
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+        .participant {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.25em;
+            color: #333333;
+            margin: 4px;
+        }
+        .participant:hover {
+            cursor: pointer;
+            background-color: lightgoldenrodyellow;
+            text-decoration: none;
+            color: #333333;
+        }
+
+        .participant-box:first-child {
+            margin-left: -3px;
         }
     </style>
 
@@ -35,7 +52,7 @@
                         </div>
                     {% endif %}
                 </div>
-                <div style="margin-left: 2em; margin-top: 2em;">
+                <div style="margin-left: 2em; margin-right: 2em; margin-top: 2em;">
                     {{ event.description }}
                 </div>
                 <div style="margin-left: 2em; margin-top: 2em;">
@@ -52,12 +69,45 @@
                          src="/static/img/language_flags/{{ event.language }}.png" alt=""/> {{ event.display_language }}
                 </div>
             </div>
+            <div style="padding: 4px; font-weight: bold">Participants</div>
+            <div class="participant-box" style="padding-top: 10px;">
+                <a class="participant" href="https://rbe-network.org/profile/user/{{  event.creator.profile.uid }}">
+                    {{ event.creator.username }}
+                </a>
+                {% for p in participants %}
+                    <a class="participant" href="https://rbe-network.org/profile/user/{{ p.user.profile.uid }}">
+                        {{ p.user.username }}
+                    </a>
+                {% endfor %}
+            </div>
             </div>
             <div class="col-xs-12 col-sm-3 col-md-2">
-                <div class="visible-xs" style="margin-top: 2em">Edit</div>
+                <div class="visible-xs" style="margin-top: 2em"></div>
 
-                <div class="btn btn-success btn-block">Edit</div>
-                <div class="btn btn-danger btn-block">RSVP</div>
+                <a href="https://rbe-network.org/profile/user/{{ event.creator.profile.uid }}" class="btn btn-warning btn-block">Organizer: {{ event.creator.username }}</a>
+
+                {% if request.user == event.creator %}
+                    <a href="{% url 'edit_event' event.id %}" class="btn btn-success btn-block">Edit</a>
+                {% else %}
+                    <div class="btn-group btn-block">
+                        <button type="button" class="btn btn-default btn-block dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="fa {% if participation_status.state == 'not_going' %}fa-close{% else %}fa-check{% endif %}" {% if not participation_status %}style="display: none"{% endif %}></span>
+                            <span class="current_status">
+                                {% if not participation_status %}
+                                    Join
+                                {% else %}
+                                    {{ participation_status.display_state }}
+                                {% endif %}
+                            </span> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="state-change" data-event-id="{{ event.id }}" data-status="interested">Interested</a></li>
+                            <li><a class="state-change" data-event-id="{{ event.id }}" data-status="going">Going</a></li>
+                            <li><a class="state-change" data-event-id="{{ event.id }}" data-status="not_going">Not going</a></li>
+                        </ul>
+                    </div>
+                {% endif %}
+
 
                 <div style="margin-top: 3em"></div>
                 <div class="btn btn-social btn-twitter btn-block">
@@ -80,6 +130,22 @@
     <script>
         $(document).ready(function () {
             $('.search-bar').removeClass('visible-xs').hide();
+
+            $('.state-change').click(function(){
+
+                var new_status_value = $(this).data('status');
+                var event_id = $(this).data('event-id');
+                var new_status_display = $(this).html();
+
+                update_event_participation_status(event_id, new_status_value, function(){
+                    $('.current_status').html(new_status_display);
+                    if (new_status_value == 'not_going'){
+                        $('.current_status').prev().removeClass('fa-check').addClass('fa-close').show()
+                    }else {
+                        $('.current_status').prev().removeClass('fa-close').addClass('fa-check').show()
+                    }
+                });
+            });
         });
     </script>
 {% endblock %}

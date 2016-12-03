@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from events.forms import EventForm
-from events.models import Event
+from events.models import Event, EventParticipant, PARTICIPATION_STATES
 
 
 def landing(request):
@@ -43,7 +43,6 @@ def create_event(request):
         # check whether it's valid:
         if form.is_valid():
 
-            print request.user
             title = form.cleaned_data['title']
             description = form.cleaned_data['description']
             language = form.cleaned_data['language']
@@ -64,6 +63,7 @@ def create_event(request):
 
     return render(request, 'events/create.html',  {'form': form})
 
+
 @login_required(login_url=settings.LOGIN_URL)
 def event_details(request, event_id):
     context = {}
@@ -71,6 +71,80 @@ def event_details(request, event_id):
     try:
         event = Event.objects.get(id=event_id)
         context['event'] = event
+        context['participants'] = EventParticipant.objects.filter(event=event)
+
+        ep_qs = EventParticipant.objects.filter(event=event, user=request.user)
+        if ep_qs.exists():
+            context['participation_status'] = ep_qs.first()
+
     except Event.DoesNotExist:
         pass
     return render(request, 'events/event_details.html', context)
+
+
+@login_required(login_url=settings.LOGIN_URL)
+def edit_event(request, event_id):
+    try:
+        event = Event.objects.get(id=event_id)
+    except Event.DoesNotExist as e:
+        return render(request, 'events/edit.html', {'error': "The event you try to edit doesn't exists"})
+
+    if event.creator != request.user:
+        return render(request, 'events/edit.html', {'error': "Sorry, you cannot edit this event"})
+
+    if request.method == 'POST':
+        # This is the save changed events call
+        form = EventForm(request.POST)
+
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            description = form.cleaned_data['description']
+            language = form.cleaned_data['language']
+            medium = form.cleaned_data['medium']
+            begin_time = form.start_datetime
+            end_time = form.end_datetime
+
+            event.title = title
+            event.description = description
+            event.language = language
+            event.medium = medium
+            event.begin_time = begin_time
+            event.end_time = end_time
+            event.save()
+
+            # TODO - add email send out when event timings change
+            return HttpResponseRedirect(reverse('event_details', kwargs={'event_id': event.id}))
+
+    else:
+        form = EventForm(initial={
+            'title': event.title,
+            'description': event.description,
+            'language': event.language,
+            'medium': event.medium,
+            'start_date': event.begin_time.strftime("%Y-%m-%d"),
+            'start_time': event.begin_time.strftime("%H:%M"),
+            'end_time': event.end_time.strftime("%H:%M"),
+            'end_date': event.end_time.strftime("%Y-%m-%d")
+        })
+
+    return render(request, 'events/edit.html', {'form': form, 'event': event})
+
+
+@login_required(login_url=settings.LOGIN_URL)
+def event_pstatus(request):
+    event_id = request.POST.get('event_id')
+    new_state = request.POST.get('new_state')
+
+    try:
+        event = Event.objects.get(id=event_id)
+
+        if new_state not in dict(PARTICIPATION_STATES).keys():
+            return JsonResponse({'success': False, 'reason': "Unknown new state!"})
+
+        ep, created = EventParticipant.objects.get_or_create(event=event, user=request.user)
+        ep.state = new_state
+        ep.save()
+        return JsonResponse({'success': True})
+
+    except Event.DoesNotExist:
+        return JsonResponse({'success': False, 'reason': "No such event!"})

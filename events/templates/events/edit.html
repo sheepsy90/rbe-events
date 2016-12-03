@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+{% block content %}
+    <script src="/static/js/bootstrap-datepicker.min.js"></script>
+    <script src="/static/js/jquery-clockpicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/jquery-clockpicker.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-datepicker3.standalone.min.css"/>
+
+    <div class="container" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-xs-12 col-xs-offset-0 col-sm-8 col-sm-offset-2">
+                <form id="change_profile" action="{% url "edit_event" event.id %}" method="post">
+                    {% csrf_token %}
+
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">{{ error }}</div>
+                    {% endfor %}
+
+                    {% with field=form.title %}
+                        <div class="fieldWrapper {% if field.errors %}errors{% endif %}">
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            <div class='row'>
+                                <label class="col-sm-12" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                <div class="col-sm-12">{{ field }}
+                                    {% if field.help_text %}
+                                        <span id="help_{{ field.id_for_label }}"
+                                              class="help-block">{{ field.help_text|safe }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                        {% with field=form.description %}
+
+                        <div class="fieldWrapper {% if field.errors %}errors{% endif %}">
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            <div class='row'>
+                                <label class="col-sm-12" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                <div class="col-sm-12">{{ field }}
+                                    {% if field.help_text %}
+                                        <span id="help_{{ field.id_for_label }}"
+                                              class="help-block">{{ field.help_text|safe }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endwith %}
+
+                        {% with field=form.language %}
+
+                        <div class="fieldWrapper {% if field.errors %}errors{% endif %}">
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            <div class='row'>
+                                <label class="col-sm-12" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                <div class="col-sm-12">{{ field }}
+                                    {% if field.help_text %}
+                                        <span id="help_{{ field.id_for_label }}"
+                                              class="help-block">{{ field.help_text|safe }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endwith %}
+
+                     {% with field=form.medium %}
+                        <div class="fieldWrapper {% if field.errors %}errors{% endif %}">
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            <div class='row'>
+                                <label class="col-sm-12" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                <div class="col-sm-12">{{ field }}
+                                    {% if field.help_text %}
+                                        <span id="help_{{ field.id_for_label }}"
+                                              class="help-block">{{ field.help_text|safe }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endwith %}
+
+                        <div class="fieldWrapper {% if form.start_date.errors or form.start_time.errors %}errors{% endif %}">
+                            {% for error in form.start_date.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            {% for error in form.start_time.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-6">
+                                    <label>Start date/time</label>
+                                </div>
+                            </div>
+                            <div class='row'>
+                                <div class="col-xs-12 col-sm-6">{{ form.start_date }}
+                                    {% if form.start_date.help_text %}
+                                        <span id="help_{{ form.start_date.id_for_label }}"
+                                              class="help-block">{{ form.start_date.help_text|safe }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-xs-12 col-sm-6">{{ form.start_time }}
+                                    {% if form.start_time.help_text %}
+                                        <span id="help_{{ form.start_time.id_for_label }}"
+                                              class="help-block">{{ form.start_time.help_text|safe }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="fieldWrapper {% if form.end_date.errors or form.end_time.errors %}errors{% endif %}">
+                            {% for error in form.end_date.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            {% for error in form.end_time.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                            {% endfor %}
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-6">
+                                    <label>End date/time</label>
+                                </div>
+                            </div>
+                            <div class='row'>
+                                <div class="col-xs-12 col-sm-6">{{ form.end_date }}
+                                    {% if form.end_date.help_text %}
+                                        <span id="help_{{ form.end_date.id_for_label }}"
+                                              class="help-block">{{ form.end_date.help_text|safe }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-xs-12 col-sm-6">{{ form.end_time }}
+                                    {% if form.end_time.help_text %}
+                                        <span id="help_{{ form.end_time.id_for_label }}"
+                                              class="help-block">{{ form.end_time.help_text|safe }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                    <input class="btn btn-success btn-block" type="submit" value="Apply changes"
+                           style="margin-top: 15px"/>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        $('.date-picker').datepicker({
+            todayHighlight: true,
+            todayBtn: true,
+            format: "yyyy-mm-dd",
+            orientation: "top left",
+            autoclose: true,
+            autonow: true
+        });
+        $('.clock').clockpicker({
+            autoclose: true,
+            minutes: undefined,
+            hours: undefined,
+            orientation: "top left"
+        });
+    </script>
+{% endblock %}
