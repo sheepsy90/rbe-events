@@ -39,7 +39,7 @@ class EventForm(ModelForm):
 
         year, month, day = start_date.split('-')
         hour, minute = start_time.split(':')
-        return timezone.datetime(year=int(year), month=int(month), day=int(day), hour=int(hour), minute=int(minute))
+        return timezone.datetime(year=int(year), month=int(month), day=int(day), hour=int(hour), minute=int(minute), tzinfo=timezone.get_current_timezone())
 
     def _end_datetime(self, cleaned_data):
         start_date = cleaned_data.get("start_date")
@@ -52,7 +52,7 @@ class EventForm(ModelForm):
 
         year, month, day = end_date.split('-')
         hour, minute = end_time.split(':')
-        return timezone.datetime(year=int(year), month=int(month), day=int(day), hour=int(hour), minute=int(minute))
+        return timezone.datetime(year=int(year), month=int(month), day=int(day), hour=int(hour), minute=int(minute), tzinfo=timezone.get_current_timezone())
 
     @property
     def start_datetime(self):
