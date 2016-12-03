@@ -2,6 +2,7 @@ import datetime
 from django import forms
 from django.forms import widgets
 from django.forms import ModelForm
+from django.utils import timezone
 
 from events.models import Event
 
@@ -32,7 +33,6 @@ class EventForm(ModelForm):
             'language': widgets.Select(attrs={'class': 'form-control'}),
             'medium': widgets.Select(attrs={'class': 'form-control'})
         }
-
 
     def _start_datetime(self, cleaned_data):
         start_date = cleaned_data.get("start_date")
@@ -78,3 +78,6 @@ class EventForm(ModelForm):
 
         if start_datetime > end_datetime:
             raise forms.ValidationError("Event cannot end before it begins!")
+
+        if start_datetime < timezone.now():
+            raise forms.ValidationError("Event needs to be in the future!")

@@ -2,17 +2,53 @@
 {% load static %}
 
 {% block header %}
-    <link rel="stylesheet" type="text/css" href='{% static "css/event-overview.css"%}'>
+    <link rel="stylesheet" type="text/css" href='{% static "css/event-overview.css" %}'>
 {% endblock %}
 
 {% block content %}
+    <style>
+    </style>
+
     <div class="container">
-        <div class="row" style="margin-top: 2em">
-            <div class="col-xs-12 col-sm-8 col-sm-offset-3 col-md-4 col-md-offset-4" style="text-align: justify">
-                This is the RBE Events application that will allow you to see events from all around the world, online
-                and offline events, different languages etc.
+
+        <div class="row" style="margin-top: 1.5em">
+            <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+
+                <div class="input-group">
+                    <div class="input-group-btn hidden-xs">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"><span id="search-language-current">All Languages</span> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="search-language {% if search_language == 'all' %}active{% endif %}" data-language="all">All Languages</a></li>
+                            <li><a class="search-language {% if search_language == 'mine' %}active{% endif %}" data-language="mine">My Languages</a></li>
+                        </ul>
+                    </div>
+                    <div class="input-group-btn hidden-xs">
+                        <button style="border-radius: 0" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"><span id="search-distance-current">Everywhere</span> <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a class="search-distance {% if search_distance == 0 %}active{% endif %}" data-max-dist="0">Everywhere</a></li>
+                            <li><a class="search-distance {% if search_distance == 20 %}active{% endif %}" data-max-dist="20">< 20 km</a></li>
+                            <li><a class="search-distance {% if search_distance == 50 %}active{% endif %}" data-max-dist="50">< 50 km</a></li>
+                            <li><a class="search-distance {% if search_distance == 100 %}active{% endif %}" data-max-dist="100">< 100 km</a></li>
+                            <li><a class="search-distance {% if search_distance == 500 %}active{% endif %}" data-max-dist="500">< 500 km</a></li>
+                        </ul>
+                    </div>
+                    <input id="search_text" type="text" class="form-control" aria-label="..." placeholder="Enter a term to search through events" value="{{ search_text }}">
+                    <div class="input-group-btn">
+                        <div id="search" class="btn btn-default">Search</div>
+                    </div>
+                </div><!-- /input-group -->
             </div>
         </div>
+        <div class="row" style="font-size: 12px; color: #7c7c7c">
+            <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" style="text-align: center">
+                <i>You can search for RBE related events worldwide - based on your language, location or keywords
+                    in the title or description of the event.</i>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
                 {% regroup events by begin_time.date as events_group %}
@@ -27,7 +63,8 @@
                                         <div class="row">
                                             <div class="col-xs-4 col-sm-12">
                                                 <span>{{ event.begin_time|date:"g:iA" }}</span>
-                                                <span class="visible-xs" style="font-size: 12px">{{ event.begin_time|date:"e" }}</span>
+                                                <span class="visible-xs"
+                                                      style="font-size: 12px">{{ event.begin_time|date:"e" }}</span>
                                             </div>
                                             <div class="col-sm-12 hidden-xs " style="height: 10px"></div>
                                             <div class="hidden-xs col-sm-12 align-center">
@@ -78,9 +115,41 @@
                             </li>
                         {% endfor %}
                     </ul>
+                {% empty %}
+                    <div style="margin-top: 3em; text-align: center" class="alert alert-info" role="alert"><i class="fa fa-info-circle" aria-hidden="true"></i> Sorry - no events where found - try to broaden your search parameters.</div>
                 {% endfor %}
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function(){
+            $('#search-distance-current').html($('.search-distance.active').html());
+            $('#search-language-current').html($('.search-language.active').html());
+
+            $('.search-distance').click(function(){
+               var display_value = $(this).html();
+               $('.search-distance').removeClass('active');
+               $(this).addClass('active');
+               $('#search-distance-current').html(display_value);
+            });
+
+            $('.search-language').click(function(){
+               var display_value = $(this).html();
+               $('.search-language').removeClass('active');
+               $(this).addClass('active');
+               $('#search-language-current').html(display_value);
+           });
+
+            $('#search').click(function(){
+                var search_language_value = $('.search-language.active').data('language');
+                var search_distance_value = $('.search-distance.active').data('max-dist');
+                var search_text_value = $('#search_text').val();
+
+                window.location = get_url('index') + "?search_language=" + search_language_value
+                        + "&search_distance=" + search_distance_value
+                        + "&search_text=" + search_text_value;
+            });
+        });
+    </script>
 {% endblock %}
 

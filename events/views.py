@@ -3,6 +3,7 @@ from django.conf import settings
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -21,11 +22,49 @@ def landing(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 def index(request):
-    todays_date = timezone.datetime.today().date()
-    in_two_month_date = timezone.datetime.today().date() + datetime.timedelta(days=60)
 
-    events = Event.objects.filter(begin_time__gte=todays_date, begin_time__lt=in_two_month_date).order_by('begin_time')
-    context = {'events': events}
+    search_language = request.GET.get('search_language', 'all')
+    search_distance = request.GET.get('search_distance', '0')
+    search_text = request.GET.get('search_text', '')
+
+    try:
+        search_distance = int(search_distance)
+        assert search_distance in [0, 20, 50, 100, 500]
+    except:
+        search_distance = 0
+
+    try:
+        assert search_language in ['all', 'mine']
+    except:
+        search_language = 'all'
+
+    todays_date = timezone.datetime.today().date()
+
+    event_qs = Event.objects.filter(begin_time__gte=todays_date)
+
+    if search_text:
+        # Allow only stuff that matches the title
+        event_qs = event_qs.filter(Q(title__icontains=search_text)|Q(description__icontains=search_text))
+
+    if search_language == 'mine':
+        # Filter based on user languages
+        # TODO implement
+        pass
+
+    if search_distance != 0:
+        # Filter based on user's distance to event
+        # TODO implement
+        pass
+
+    event_qs = event_qs.order_by('begin_time')
+
+    context = {
+        'events': event_qs,
+        'search_language': search_language,
+        'search_distance': search_distance,
+        'search_text': search_text
+    }
+
     return render(request, 'events/index.html', context)
 
 
